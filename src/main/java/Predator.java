@@ -1,11 +1,8 @@
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 public class Predator extends Creature {
-    //Хищник, наследуется от Creature. В дополнение к полям класса Creature, имеет силу атаки.
+    //Хищник, наследуется от main.java.Creature. В дополнение к полям класса main.java.Creature, имеет силу атаки.
     // На что может потратить ход хищник:
     //Переместиться (чтобы приблизиться к жертве - травоядному)
     //Атаковать травоядное. При этом количество
@@ -35,12 +32,12 @@ public class Predator extends Creature {
     //это наверное надо будет убрать посмотреть реализацию для пешкии думаю там похожая будет
     //БУДЕМ ли добавлять ход по диагонали?
     @Override
-    protected Set<CoordinatesShift> getEntityMoves() {
+    public Set<CoordinatesShift> getEntityMoves() {
         return super.getEntityMoves();
     }
 
     @Override
-    protected boolean isSquareAvailableForMove(Coordinates coordinates, Map map) {
+    public boolean isSquareAvailableForMove(Coordinates coordinates, Map map) {
         Entity entity = map.getEntity(coordinates);
         return map.isSquareEmpty(coordinates) || entity instanceof Herbivore;
     }

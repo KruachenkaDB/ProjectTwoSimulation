@@ -1,10 +1,9 @@
 import java.awt.*;
-import java.util.Arrays;
-import java.util.HashSet;
+
 import java.util.Set;
 
 public class Herbivore extends Creature {
-//Травоядное, наследуется от Creature.
+//Травоядное, наследуется от main.java.Creature.
 // Стремятся найти ресурс (траву),
 // может потратить свой ход на движение
 // в сторону травы, либо на её поглощение.
@@ -27,7 +26,7 @@ public class Herbivore extends Creature {
     }
 
     @Override
-    protected Set<CoordinatesShift> getEntityMoves() {
+    public Set<CoordinatesShift> getEntityMoves() {
         return super.getEntityMoves();
     }
 }

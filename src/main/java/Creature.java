@@ -1,9 +1,8 @@
 import java.awt.*;
-import java.util.Collection;
 
 abstract class Creature extends Entity{
     //Абстрактный класс,
-    // наследуется от Entity.
+    // наследуется от main.java.Entity.
     // Существо, имеет скорость
     // (сколько клеток может пройти
     // за 1 ход), количество HP.

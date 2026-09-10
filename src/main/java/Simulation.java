@@ -1,4 +1,12 @@
 import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.LinkedList;
+
+import org.jline.terminal.Terminal;
+import org.jline.utils.AttributedString;
+import org.jline.utils.Display;
 
 public class Simulation {
     //Главный класс приложения, включает в себя:
@@ -7,12 +15,13 @@ public class Simulation {
     public static final String ANSI_RED_SQUARE_BACKGROUND = "\u001B[31m";
     public static final String ANSI_GREEN_SQUARE_BACKGROUND = "\u001B[32m";
     public static final String ANSI_WHITE_SQUARE_BACKGROUND = "\u001b[37m";
-
+    private Terminal terminal;
     //цбрала тут файнл
     private Map map;
 
-    public Simulation() {
+    public Simulation(Map map, Terminal terminal) {
         this.map = map;
+        this.terminal = terminal;
     }
 
     //Карту
@@ -20,19 +29,27 @@ public class Simulation {
     //Счётчик ходов
 
     //Рендерер поля
-    public static void render(Map map) {
+    public void render(Map map) throws IOException {
+        terminal.writer().print("\033[H");
+
+        //разобраться с этой строкой
+        StringBuilder board = new StringBuilder();
+
         for (int gorizontal = 0; gorizontal < 10; gorizontal++) {
-            String line = "";
             for (int vertikal = 0; vertikal < 80; vertikal++) {
                 Coordinates coordinates = new Coordinates(gorizontal, vertikal);
-                if (map.isSquareEmpty(coordinates)){
-                    line += getSpriteForEmptySquare(new Coordinates(vertikal, gorizontal));
+
+                if (map.isSquareEmpty(coordinates)) {
+                    board.append(getSpriteForEmptySquare(new Coordinates(vertikal, gorizontal)));
                 } else {
-                    line += getEntitySprite(map.getEntity(coordinates));
+                    board.append(getEntitySprite(map.getEntity(coordinates)));
                 }
             }
-            System.out.println(line);
+            board.append('\n');
         }
+
+        terminal.writer().print(board);
+        terminal.writer().flush();
     }
 
     public static String getEntitySprite(Entity entity) {
@@ -76,25 +93,27 @@ public class Simulation {
 
 
     //просимулировать и отрендерить один ход
-    void nextTurn(){
-
+    void nextTurn(LinkedList<Coordinates> path, Entity entity) {
+        map.moveEntity(entity.coordinates, path.getFirst());
+        path.removeFirst();
     }
 
     //запустить бесконечный цикл симуляции и рендеринга
-    void startSimulation() {
-        while (true) {
-//он после каждого хода собирается рендерить доску
-            // нам же скорее всего надо создать поток котрый будет
-            // обновляться каждые пол секунды, или сделать так что один ход длится 2 секунды
-            // из-за разной скорости хищники передвигаются быстрее, получается что за 1 ход
-            // хищник пройдет 2 клетки, а травоядное 1 клетку
+    //нужна ли обработка ошибки, произошли изменения в коде
+    void startSimulation(LinkedList<Coordinates> path, Entity entity) throws IOException{
+        while (!path.isEmpty()) {
+            nextTurn(path, entity);
 
             render(map);
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            //рендерить доску после каждого хода? сейчас рендерится подряд друг за другом, надо чтобы доска обновлялась на одном месте, чтобы обновляла сама себя
+            //Надо ли чтобы они передвигались с разной скоростью? Думаю нет...
+
         }
     }
 
@@ -102,14 +121,19 @@ public class Simulation {
     //съедание происходит когда координаты совпадают (но не заюываем про пищевую цепочку
     // мышь не может съесть сову
     // приостановить бесконечный цикл симуляции и рендеринга
-    void pauseSimulation(){
+    void pauseSimulation() {
 
     }
 
     //Actions - список действий, исполняемых перед стартом симуляции или на каждом ходу (детали ниже)
     //Actions #
-    //Action - действие, совершаемое над миром. Например - сходить всеми существами. Это действие итерировало бы существ и вызывало каждому makeMove(). Каждое действие описывается отдельным классом и совершает операции над картой. Симуляция содержит 2 массива действий:
+    //Action - действие, совершаемое над миром. Например - сходить всеми существами.
+    // Это действие итерировало бы существ и вызывало каждому makeMove().
+    // Каждое действие описывается отдельным классом и совершает операции над картой.
+    // Симуляция содержит 2 массива действий:
     //
     //initActions - действия, совершаемые перед стартом симуляции. Пример - расставить объекты и существ на карте
     //turnActions - действия, совершаемые каждый ход. Примеры - передвижение существ, добавить травы или травоядных, если их осталось слишком мало
+
+
 }

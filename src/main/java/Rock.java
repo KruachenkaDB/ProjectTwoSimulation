@@ -1,7 +1,9 @@
 import java.util.Set;
 
-public class Grass extends Entity{
-    public Grass(Coordinates coordinates) {
+public class Rock extends Entity{
+    //сделать его енам?
+
+    public Rock(Coordinates coordinates) {
         super(coordinates);
     }
 
@@ -11,7 +13,7 @@ public class Grass extends Entity{
     }
 
     @Override
-    protected Set<CoordinatesShift> getEntityMoves() {
+    public Set<CoordinatesShift> getEntityMoves() {
         return Set.of();
     }
 }

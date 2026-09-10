@@ -1,5 +1,7 @@
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 public class Map {
@@ -19,8 +21,12 @@ public class Map {
 
     //мтеод переноса фигуры на новую клетку
     // получатеся в алгоритме мы будем двигаться на одну клетку ближе к вершине
-    // им=спользуя этот мтеод для именения координат (либо вообще без этого метода)
+    // исспользуя этот метод для изменения координат (либо вообще без этого метода)
     public void moveEntity(Coordinates from, Coordinates to) {
+        // временно добавила чтобы понять ошибку
+        //System.out.println("FROM: " + from.vertical + " " + from.gorizontal);
+        //System.out.println("ENTITY: " + getEntity(from));
+
         Entity entity = getEntity(from);
         removeEntity(from);
         setEntitys(to, entity);
@@ -51,5 +57,18 @@ public class Map {
 
     public Entity getEntity(Coordinates coordinates) {
         return entitys.get(coordinates);
+    }
+
+    // временный метод чтобы проверить что мышь двигается на карте к еде, удалить/исправить!
+    public List<Herbivore> getHerbivores() {
+        List<Herbivore> herbivores = new ArrayList<>();
+
+        for (Entity entity : entitys.values()) {
+            if (entity instanceof Herbivore) {
+                herbivores.add((Herbivore) entity);
+
+            }
+        }
+        return herbivores;
     }
 }

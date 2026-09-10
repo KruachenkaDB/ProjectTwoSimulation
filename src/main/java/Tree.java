@@ -11,7 +11,7 @@ public class Tree extends Entity{
     }
 
     @Override
-    protected Set<CoordinatesShift> getEntityMoves() {
+    public Set<CoordinatesShift> getEntityMoves() {
         return Set.of();
     }
 }
