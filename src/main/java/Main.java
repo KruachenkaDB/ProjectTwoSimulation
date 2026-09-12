@@ -7,7 +7,7 @@ public class Main {
         Simulation simulation = new Simulation(map);
         simulation.initActions();
 
-        Timer timer = new Timer(500, e -> {
+        Timer timer = new Timer(2000, e -> {
             simulation.startSimulation();
         });
         timer.start();

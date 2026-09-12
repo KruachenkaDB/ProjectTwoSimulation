@@ -9,14 +9,19 @@ public class Herbivore extends Creature {
 //может потратить свой ход на движение
 //в сторону травы, либо на её поглощение.
 
-    public Herbivore(Coordinates coordinates, int speed, Color color, int health_HP) {
-        super(coordinates, speed, color, health_HP);
+    public Herbivore(Coordinates coordinates, int speed, int health_HP) {
+        super(coordinates, speed, health_HP);
     }
 
-    //здесь мне не нравятся методы, они пумтые, может что то из энтити сюд перенести
+    //здесь мне не нравятся методы, они пумтые, может что-то из энтити сюд перенести
     @Override
     void makeMove(Map map) {
-        super.makeMove(map);
+        LinkedList<Coordinates> path = getPathAlgoritmBfs(this, map);
+
+        if (!path.isEmpty()) {
+            map.moveEntity(coordinates, path.getFirst());
+            path.removeFirst();
+        }
     }
 
     @Override

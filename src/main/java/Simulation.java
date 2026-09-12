@@ -20,6 +20,8 @@ public class Simulation {
     public static final int PANEL_TABLE_ROWS = 10;
     public static final int PANEL_TABLE_COLS = 80;
 
+    private int turnCounter = 0;
+
     public static final JLabel[][] cells = new JLabel[10][80];
 
     //не будут ли хищники пресекаться во время хода?
@@ -32,6 +34,7 @@ public class Simulation {
     }
 
     //Счётчик ходов
+
 
     //Рендерер поля
     public void render(Map map) {
@@ -104,10 +107,17 @@ public class Simulation {
     }
 
     void turnActions() {
+        turnCounter++;
+        System.out.println("Ход: " + turnCounter);
         java.util.List<Herbivore> herbivores = map.getHerbivores();
+        java.util.List<Predator> predators = map.getPredators();
 
         for (Herbivore herbivore : herbivores) {
             herbivore.makeMove(map);
+        }
+
+        for (Predator predator : predators) {
+            predator.makeMove(map);
         }
         refreshBoard(map, cells);
     }

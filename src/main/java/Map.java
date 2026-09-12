@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Random;
 
 public class Map {
+
+//    PREDATOR_HEALTH = 100
+//    PREDATOR_ATTACK = 20
+
     HashMap<Coordinates, Entity> entitys = new HashMap<>();
     Random random = new Random();
     int randomCoordinate;
@@ -31,13 +35,14 @@ public class Map {
     //переименовать метод
     public void initActions() {
         for (int i = 0; i < 10; i++) {
+            //надо ли числа выносить в отдельную переменную
             // тут подумать над скоростью
             // пока внесла только хищников и травоядных, рандомно раскидала
             // они расставляясь рандомно могут поставиться дргу на друга, точнее зааменит того кто встал первым
             randomCoordinate = random.nextInt(100);
-            setEntitys((new Coordinates(i, randomCoordinate)), new Predator(new Coordinates(i, randomCoordinate), 1, Color.RED, 100, 20));
+            setEntitys((new Coordinates(i, randomCoordinate)), new Predator(new Coordinates(i, randomCoordinate), 2, 100, 20));
             randomCoordinate = random.nextInt(100);
-            setEntitys((new Coordinates(i, randomCoordinate)), new Herbivore(new Coordinates(i, randomCoordinate), 1, Color.YELLOW, 100));
+            setEntitys((new Coordinates(i, randomCoordinate)), new Herbivore(new Coordinates(i, randomCoordinate), 1, 100));
             randomCoordinate = random.nextInt(100);
             setEntitys((new Coordinates(i, randomCoordinate)), new Grass(new Coordinates(i, randomCoordinate)));
             randomCoordinate = random.nextInt(100);
@@ -67,4 +72,17 @@ public class Map {
         }
         return herbivores;
     }
+
+    public List<Predator> getPredators() {
+        List<Predator> predators = new ArrayList<>();
+
+        for (Entity entity : entitys.values()) {
+            if (entity instanceof Predator) {
+                predators.add((Predator) entity);
+
+            }
+        }
+        return predators;
+    }
+
 }

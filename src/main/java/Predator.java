@@ -13,14 +13,34 @@ public class Predator extends Creature {
 
     int powerAttack;
 
-    public Predator(Coordinates coordinates, int speed, Color color, int health_HP, int powerAttack) {
-        super(coordinates, speed, color, health_HP);
+    public Predator(Coordinates coordinates, int speed, int health_HP, int powerAttack) {
+        super(coordinates, speed, health_HP);
         this.powerAttack = powerAttack;
     }
 
     @Override
     void makeMove(Map map) {
-        super.makeMove(map);
+        LinkedList<Coordinates> path = getPathAlgoritmBfs(this, map);
+
+        // как то по другому обозвать каунт
+        int count = 0;
+        while (count < speed) {
+            if (path.isEmpty()) break;
+            Entity entity = map.getEntity(path.getFirst());
+
+            if (entity instanceof Herbivore) {
+                Herbivore herbivore = (Herbivore) entity;
+                herbivore.health_HP -= powerAttack;
+                if (herbivore.health_HP <= 0) {
+                    map.removeEntity(herbivore.coordinates);
+                }
+                break;
+            } else {
+                map.moveEntity(coordinates, path.getFirst());
+                path.removeFirst();
+            }
+            count++;
+        }
     }
 
     @Override
