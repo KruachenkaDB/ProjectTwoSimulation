@@ -1,6 +1,8 @@
 import java.util.Objects;
 
 public class Coordinates {
+
+//    почему указали не инт а интеджер
     public final Integer vertical;
     public final Integer gorizontal;
 

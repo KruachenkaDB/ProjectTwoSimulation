@@ -1,16 +1,15 @@
 import java.awt.*;
+import java.util.LinkedList;
 import java.util.Set;
 
 public class Predator extends Creature {
-    //Хищник, наследуется от main.java.Creature. В дополнение к полям класса main.java.Creature, имеет силу атаки.
+    // имеет силу атаки.
     // На что может потратить ход хищник:
     //Переместиться (чтобы приблизиться к жертве - травоядному)
     //Атаковать травоядное. При этом количество
     // HP травоядного уменьшается на силу атаки хищника.
     // Если значение HP жертвы опускается до 0,
     // травоядное исчезает
-
-
 
     int powerAttack;
 
@@ -20,8 +19,8 @@ public class Predator extends Creature {
     }
 
     @Override
-    void makeMove() {
-        super.makeMove();
+    void makeMove(Map map) {
+        super.makeMove(map);
     }
 
     @Override
@@ -30,7 +29,6 @@ public class Predator extends Creature {
     }
 
     //это наверное надо будет убрать посмотреть реализацию для пешкии думаю там похожая будет
-    //БУДЕМ ли добавлять ход по диагонали?
     @Override
     public Set<CoordinatesShift> getEntityMoves() {
         return super.getEntityMoves();

@@ -1,8 +1,7 @@
 import java.awt.*;
+import java.util.LinkedList;
 
 abstract class Creature extends Entity{
-    //Абстрактный класс,
-    // наследуется от main.java.Entity.
     // Существо, имеет скорость
     // (сколько клеток может пройти
     // за 1 ход), количество HP.
@@ -20,6 +19,12 @@ abstract class Creature extends Entity{
         this.health_HP = health_HP;
     }
 
-    void makeMove(){
+    void makeMove(Map map){
+        LinkedList<Coordinates> path = getPathAlgoritmBfs(this, map);
+
+        if (!path.isEmpty()) {
+            map.moveEntity(coordinates, path.getFirst());
+            path.removeFirst();
+        }
     }
 }

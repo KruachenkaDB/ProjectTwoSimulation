@@ -23,16 +23,12 @@ public class Map {
     // получатеся в алгоритме мы будем двигаться на одну клетку ближе к вершине
     // исспользуя этот метод для изменения координат (либо вообще без этого метода)
     public void moveEntity(Coordinates from, Coordinates to) {
-        // временно добавила чтобы понять ошибку
-        //System.out.println("FROM: " + from.vertical + " " + from.gorizontal);
-        //System.out.println("ENTITY: " + getEntity(from));
-
         Entity entity = getEntity(from);
         removeEntity(from);
         setEntitys(to, entity);
     }
 
-    //setupDefaultEntityPosition
+    //переименовать метод
     public void initActions() {
         for (int i = 0; i < 10; i++) {
             // тут подумать над скоростью
