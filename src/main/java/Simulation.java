@@ -1,38 +1,32 @@
+import config.GameSettings;
+import entity.*;
+import map.Coordinates;
+import map.Map;
+
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.List;
 
 public class Simulation {
-    // тут надо пересмотреь все переменные, разобраться какие приватные, какие файнал
-    // и интеджер или просто инт, тоже непонятно
-    public static final String GAME_NAME = "Simulation";
-    String emptyCell = "=";
-
-    public static final int WIDTH_FRAME = 600;
-    public static final int HEIGHT_FRAME = 600;
-
-    private static final int GRASS_SPAWN_INTERVAL = 2;
-
-    private int simulationDelay = 500;
+    private static final String GAME_NAME = "Simulation";
+    private static final String EMPTY_CELL = "=";
 
     private int turnCounter = 0;
 
-    public static final JLabel[][] cells = new JLabel[GameSettings.MAP_WIDTH][GameSettings.MAP_HEIGHT];
+    private final JLabel[][] cells = new JLabel[GameSettings.MAP_WIDTH][GameSettings.MAP_HEIGHT];
 
     private Timer timer;
 
-    JButton pauseButton;
-    JButton startButton;
+    private JButton pauseButton;
+    private JButton startButton;
 
-
-    private Map map;
-    Creature creature;
+    private final Map map;
 
     public Simulation(Map map) {
         this.map = map;
     }
 
-    public String selectUnicodeSpriteForEntity(Entity entity) {
+    private String selectUnicodeSpriteForEntity(Entity entity) {
         switch (entity.getClass().getSimpleName()) {
             case "Predator":
                 return "\uD83E\uDD89";
@@ -48,18 +42,19 @@ public class Simulation {
         return "";
     }
 
-    void initActions() {
-        map.initActions();
+    // переименовать
+    void initUI() {
+        map.initEntitys();
 
+//        Swing-интерфейс
 //        Создаем и настраиваем каркас (окно) приложения
         JFrame frame = new JFrame(GAME_NAME);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(WIDTH_FRAME, HEIGHT_FRAME);
+        frame.setSize(GameSettings.WIDTH_FRAME, GameSettings.HEIGHT_FRAME);
 
 //        Панель для размещения компонентов
         JPanel panel = new JPanel();
 
-        //надо ли ее, или хватит только панель
         JPanel buttonsPanel = new JPanel();
 //        GridLayout размещает компоненты в виде таблицы с равными ячейками
         panel.setLayout(new GridLayout(GameSettings.MAP_WIDTH, GameSettings.MAP_HEIGHT));
@@ -68,23 +63,22 @@ public class Simulation {
         pauseButton = new JButton("Пауза");
 
 //        Добавляем компоненты на панель
-        for (int gorizontal = 0; gorizontal < GameSettings.MAP_WIDTH; gorizontal++) {
+        for (int horizontal = 0; horizontal < GameSettings.MAP_WIDTH; horizontal++) {
             for (int vertikal = 0; vertikal < GameSettings.MAP_HEIGHT; vertikal++) {
-                cells[gorizontal][vertikal] = new JLabel(emptyCell, SwingConstants.CENTER);
+                cells[horizontal][vertikal] = new JLabel(EMPTY_CELL, SwingConstants.CENTER);
 
-                cells[gorizontal][vertikal].setText(emptyCell);
-
-                Coordinates coordinates = new Coordinates(gorizontal, vertikal);
+                Coordinates coordinates = new Coordinates(vertikal, horizontal);
 
                 if (!map.isSquareEmpty(coordinates)) {
-                    cells[gorizontal][vertikal].setText(selectUnicodeSpriteForEntity(map.getEntity(coordinates)));
+                    cells[horizontal][vertikal].setText(selectUnicodeSpriteForEntity(map.getEntity(coordinates)));
                 }
 
-                cells[gorizontal][vertikal].setOpaque(true);
+                cells[horizontal][vertikal].setOpaque(true);
 
-                panel.add(cells[gorizontal][vertikal]);
+                panel.add(cells[horizontal][vertikal]);
             }
         }
+
 //        Добавляем панель в окно
         frame.getContentPane().add(panel);
 
@@ -97,46 +91,46 @@ public class Simulation {
 
 //        Разместить окно по центру экрана
         frame.setLocationRelativeTo(null);
+
 //        показать окно
         frame.setVisible(true);
     }
 
-    void turnActions() {
+    private void turnActions() {
         turnCounter++;
-//        System.out.println("Ход: " + turnCounter);
 
-        java.util.List<Herbivore> herbivores = map.getHerbivores();
+        List<Herbivore> herbivores = map.getHerbivores();
         for (Herbivore herbivore : herbivores) {
             herbivore.makeMove(map);
         }
 
-        java.util.List<Predator> predators = map.getPredators();
+        List<Predator> predators = map.getPredators();
         for (Predator predator : predators) {
             predator.makeMove(map);
         }
 
-        java.util.List<Creature> creatures = map.getCreatures();
+        List<Creature> creatures = map.getCreatures();
         for (Creature creature : creatures) {
             creature.decreaseHunger();
-            if (creature.getHealth_HP() <= 0) {
+            if (creature.getHealth() <= 0) {
                 map.removeEntity(creature.getCoordinates());
             }
         }
 
         spawnGrass();
 
-        refreshBoard(map, cells);
+        refreshBoard();
     }
 
-    void pauseSimulation() {
+    private void pauseSimulation() {
         timer.stop();
     }
 
-    void startSimulation() {
+    private void startSimulation() {
         timer.start();
     }
 
-    Color selectColorForEntity(Entity entity){
+    private Color selectColorForEntity(Entity entity){
         switch (entity.getClass().getSimpleName()) {
             case "Predator":
                 return Color.decode("#8B4513");
@@ -153,22 +147,21 @@ public class Simulation {
         }
     }
 
-    private void refreshBoard(Map map, JLabel[][] cells) {
-        for (int gorizontal = 0; gorizontal < GameSettings.MAP_WIDTH; gorizontal++) {
+    private void refreshBoard() {
+        for (int horizontal = 0; horizontal < GameSettings.MAP_WIDTH; horizontal++) {
             for (int vertikal = 0; vertikal < GameSettings.MAP_HEIGHT; vertikal++) {
-                Coordinates coordinates = new Coordinates(gorizontal, vertikal);
+                Coordinates coordinates = new Coordinates(vertikal, horizontal);
 
                 if (map.isSquareEmpty(coordinates)) {
-                    cells[gorizontal][vertikal].setText(emptyCell);
-                    cells[gorizontal][vertikal].setForeground(Color.LIGHT_GRAY);
-
+                    cells[horizontal][vertikal].setText(EMPTY_CELL);
+                    cells[horizontal][vertikal].setForeground(Color.LIGHT_GRAY);
                 } else {
-                    cells[gorizontal][vertikal].setText(
+                    cells[horizontal][vertikal].setText(
                             selectUnicodeSpriteForEntity(
                                     map.getEntity(coordinates)
                             )
                     );
-                    cells[gorizontal][vertikal].setForeground(
+                    cells[horizontal][vertikal].setForeground(
                             selectColorForEntity(map.getEntity(coordinates))
                     );
                 }
@@ -177,17 +170,17 @@ public class Simulation {
     }
 
     void initTimer() {
-        timer = new Timer(simulationDelay, e -> turnActions());
+        timer = new Timer(GameSettings.SIMULATION_DELAY, e -> turnActions());
+
+        // обработчики действий
         startButton.addActionListener(e -> startSimulation());
         pauseButton.addActionListener(e -> pauseSimulation());
     }
 
     void spawnGrass() {
-        if (turnCounter % GRASS_SPAWN_INTERVAL == 0) {
-            map.randomCoordinates = map.getRandomCoordinates();
-            map.setEntitys(map.randomCoordinates, new Grass(map.randomCoordinates));
+        if (turnCounter % GameSettings.GRASS_SPAWN_INTERVAL == 0) {
+            Coordinates coordinates = map.getRandomCoordinates();
+            map.setEntitys(coordinates, new Grass(coordinates));
         }
-        // проверяем количество ходов
-        // если пора — создаём Grass
     }
 }

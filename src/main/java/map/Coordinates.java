@@ -1,26 +1,31 @@
+package map;
+
+import config.GameSettings;
+
 import java.util.Objects;
 
 public class Coordinates {
-
-//    почему указали не инт а интеджер
     public final Integer vertical;
-    public final Integer gorizontal;
+    public final Integer horizontal;
 
-    public Coordinates(Integer vertical, Integer gorizontal) {
+    public Coordinates(Integer vertical, Integer horizontal) {
         this.vertical = vertical;
-        this.gorizontal = gorizontal;
+        this.horizontal = horizontal;
     }
 
     public Coordinates shift(CoordinatesShift shift) {
-        return new Coordinates(this.vertical + shift.verticalShift, this.gorizontal + shift.gorizontalShift);
+        return new Coordinates(
+                this.vertical + shift.verticalShift,
+                this.horizontal + shift.horizontalShift
+        );
     }
 
     public boolean canShift(CoordinatesShift shift) {
         int v = vertical + shift.verticalShift;
-        int g = gorizontal + shift.gorizontalShift;
+        int h = horizontal + shift.horizontalShift;
 
         if ((v < 0) || (v >= GameSettings.MAP_HEIGHT)) return false;
-        if ((g < 0) || (g >= GameSettings.MAP_WIDTH)) return false;
+        if ((h < 0) || (h >= GameSettings.MAP_WIDTH)) return false;
 
         return true;
     }
@@ -29,11 +34,12 @@ public class Coordinates {
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
         Coordinates that = (Coordinates) object;
-        return Objects.equals(vertical, that.vertical) && Objects.equals(gorizontal, that.gorizontal);
+
+        return Objects.equals(vertical, that.vertical) && Objects.equals(horizontal, that.horizontal);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(vertical, gorizontal);
+        return Objects.hash(vertical, horizontal);
     }
 }
