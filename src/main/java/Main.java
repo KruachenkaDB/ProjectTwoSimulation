@@ -5,11 +5,8 @@ public class Main {
         Map map = new Map();
 
         Simulation simulation = new Simulation(map);
-        simulation.initActions();
 
-        Timer timer = new Timer(2000, e -> {
-            simulation.startSimulation();
-        });
-        timer.start();
+        simulation.initActions();
+        simulation.initTimer();
     }
 }

@@ -1,16 +1,18 @@
+import java.lang.annotation.Target;
 import java.util.*;
 
-
 public abstract class Entity {
-    // скорость??
     public Coordinates coordinates;
+    private Map map;
+//    TargetType targetType;
+    public Coordinates getCoordinates() {
+        return coordinates;
+    }
 
     public Entity(Coordinates coordinates) {
         this.coordinates = coordinates;
     }
 
-    // Доступные ячейки для хода
-    // нужен ли нам этот метод если у нас есть абсолютно такой же но с другими параметрами
     public Set<Coordinates> getAvailableMoveSquares(Map map) {
         Set<Coordinates> result = new HashSet<>();
 
@@ -42,16 +44,13 @@ public abstract class Entity {
         return result;
     }
 
-    //этот метод переопределить для хищника
-    // Доступные ячейки для хода
-    //тут надо проверить, реализацию метода перенесла в метод травоядного
     public boolean isSquareAvailableForMove(Coordinates coordinates, Map map) {
         Entity entity = map.getEntity(coordinates);
         return map.isSquareEmpty(coordinates) || entity instanceof Grass;
     }
 
-    //тут пропишем алгоритм
-    public LinkedList<Coordinates> getPathAlgoritmBfs(Entity entity, Map map) {
+    // переделать название метода
+    public LinkedList<Coordinates> getPathAlgoritmBfs(Entity entity, Map map, TargetType targetType) {
         Queue<Coordinates> queue = new LinkedList<>();
         Set<Coordinates> visited = new HashSet<>();
         java.util.Map<Coordinates, Coordinates> parent = new HashMap<>();
@@ -66,18 +65,16 @@ public abstract class Entity {
             Set<Coordinates> availableMoves = entity.getAvailableMoveSquares(current, map);
 
             for (Coordinates newCoordinates : availableMoves) {
-
-                Entity target = map.getEntity(newCoordinates);
-                boolean isTarget = ((entity instanceof Predator) && (target instanceof Herbivore))
-                        || ((entity instanceof Herbivore) && (target instanceof Grass));
-
+                // тут была цель поиска перенесла в отдельный метод
                 if (!visited.contains(newCoordinates)) {
                     visited.add(newCoordinates);
                     parent.put(newCoordinates, current);
                     queue.add(newCoordinates);
 
+                    Entity target = map.getEntity(newCoordinates);
                     Coordinates step = newCoordinates;
-                    if (isTarget) {
+
+                    if (isTarget(entity, target, targetType)) {
                         while (!step.equals(entity.coordinates)) {
                             path.addFirst(step);
                             step = parent.get(step);
@@ -91,6 +88,25 @@ public abstract class Entity {
         return new LinkedList<>();
     }
 
+    boolean isTarget (Entity entity, Entity target, TargetType targetType) {
+        System.out.println(entity + " -> " + target);
+        if (target == null) {
+            return false;
+        }
+        if (targetType == TargetType.FOOD) {
+            return ((entity instanceof Predator) && (target instanceof Herbivore))
+                    || ((entity instanceof Herbivore) && (target instanceof Grass));
+
+        } else if (targetType == TargetType.PARTNER) {
+            if (target != entity) {
+                return ((entity instanceof Predator) && (target instanceof Predator))
+                        || ((entity instanceof Herbivore) && (target instanceof Herbivore));
+            }
+        }
+
+        return false;
+    }
+
     public Set<CoordinatesShift> getEntityMoves() {
         return new HashSet<>(Arrays.asList(
                 new CoordinatesShift(1, 0),
@@ -99,6 +115,15 @@ public abstract class Entity {
                 new CoordinatesShift(0, -1)
         ));
     }
+
+    //поменять имя переменной
+//    boolean isPartner(Entity entity, Coordinates availableMoves) {
+//        Entity target = map.getEntity(availableMoves);
+//        boolean isPartner = ((entity instanceof Predator) && (target instanceof Predator))
+//                || ((entity instanceof Herbivore) && (target instanceof Herbivore));
+//        return  isPartner;
+//    }
+//
 }
 
 

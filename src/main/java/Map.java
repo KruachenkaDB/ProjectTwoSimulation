@@ -1,4 +1,4 @@
-import java.awt.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -6,15 +6,24 @@ import java.util.Random;
 
 public class Map {
 
-//    PREDATOR_HEALTH = 100
-//    PREDATOR_ATTACK = 20
+    //в будущем подумать о том чтобы можно было в симуляции проверить
+    //точнее можно будет экспериментировать с количсевтом
+    static final int PREDATOR_HEALTH = 100;
+    static final int PREDATOR_ATTACK = 10;
+    static final int HERBIVORE_HEALTH = 100;
+    static final int PREDATOR_SPEED = 2;
+    static final int HERBIVORE_SPEED = 1;
+
+    //ормально ли производить вычесления с переменной макс...
+    // и не получится она файнл
+    static final int MAX_HUNGER = 100;
 
     HashMap<Coordinates, Entity> entitys = new HashMap<>();
+
     Random random = new Random();
-    int randomCoordinate;
+    Coordinates randomCoordinates;
 
     public void setEntitys(Coordinates coordinates, Entity entity) {
-
         entity.coordinates = coordinates;
         entitys.put(coordinates, entity);
     }
@@ -32,23 +41,32 @@ public class Map {
         setEntitys(to, entity);
     }
 
+
+    Coordinates getRandomCoordinates() {
+        randomCoordinates =
+                new Coordinates(random.nextInt(GameSettings.MAP_HEIGHT), random.nextInt(GameSettings.MAP_WIDTH));
+
+        while (!isSquareEmpty(randomCoordinates)) {
+            randomCoordinates =
+                    new Coordinates(random.nextInt(GameSettings.MAP_HEIGHT), random.nextInt(GameSettings.MAP_WIDTH));
+        }
+
+        return randomCoordinates;
+    }
+
     //переименовать метод
     public void initActions() {
-        for (int i = 0; i < 10; i++) {
-            //надо ли числа выносить в отдельную переменную
-            // тут подумать над скоростью
-            // пока внесла только хищников и травоядных, рандомно раскидала
-            // они расставляясь рандомно могут поставиться дргу на друга, точнее зааменит того кто встал первым
-            randomCoordinate = random.nextInt(100);
-            setEntitys((new Coordinates(i, randomCoordinate)), new Predator(new Coordinates(i, randomCoordinate), 2, 100, 20));
-            randomCoordinate = random.nextInt(100);
-            setEntitys((new Coordinates(i, randomCoordinate)), new Herbivore(new Coordinates(i, randomCoordinate), 1, 100));
-            randomCoordinate = random.nextInt(100);
-            setEntitys((new Coordinates(i, randomCoordinate)), new Grass(new Coordinates(i, randomCoordinate)));
-            randomCoordinate = random.nextInt(100);
-            setEntitys((new Coordinates(i, randomCoordinate)), new Rock(new Coordinates(i, randomCoordinate)));
-            randomCoordinate = random.nextInt(100);
-            setEntitys((new Coordinates(i, randomCoordinate)), new Tree(new Coordinates(i, randomCoordinate)));
+        for (int i = 0; i < GameSettings.INITIAL_ENTITY_COUNT; i++) {
+            randomCoordinates = getRandomCoordinates();
+            setEntitys(randomCoordinates, new Predator(randomCoordinates, PREDATOR_SPEED, PREDATOR_HEALTH, PREDATOR_ATTACK, MAX_HUNGER));
+            randomCoordinates = getRandomCoordinates();
+            setEntitys(randomCoordinates, new Herbivore(randomCoordinates, HERBIVORE_SPEED, HERBIVORE_HEALTH, MAX_HUNGER));
+            randomCoordinates = getRandomCoordinates();
+            setEntitys(randomCoordinates, new Grass(randomCoordinates));
+            randomCoordinates = getRandomCoordinates();
+            setEntitys(randomCoordinates, new Rock(randomCoordinates));
+            randomCoordinates = getRandomCoordinates();
+            setEntitys(randomCoordinates, new Tree(randomCoordinates));
         }
     }
 
@@ -60,14 +78,11 @@ public class Map {
         return entitys.get(coordinates);
     }
 
-    // временный метод чтобы проверить что мышь двигается на карте к еде, удалить/исправить!
     public List<Herbivore> getHerbivores() {
         List<Herbivore> herbivores = new ArrayList<>();
-
         for (Entity entity : entitys.values()) {
             if (entity instanceof Herbivore) {
                 herbivores.add((Herbivore) entity);
-
             }
         }
         return herbivores;
@@ -75,14 +90,24 @@ public class Map {
 
     public List<Predator> getPredators() {
         List<Predator> predators = new ArrayList<>();
-
         for (Entity entity : entitys.values()) {
             if (entity instanceof Predator) {
                 predators.add((Predator) entity);
-
             }
         }
         return predators;
+    }
+
+    public List<Creature> getCreatures() {
+        List<Creature> creatures = new ArrayList<>();
+
+        for (Entity entity : entitys.values()) {
+            if (entity instanceof Creature) {
+                creatures.add((Creature) entity);
+            }
+        }
+
+        return creatures;
     }
 
 }

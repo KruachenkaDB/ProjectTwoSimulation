@@ -13,14 +13,14 @@ public class Predator extends Creature {
 
     int powerAttack;
 
-    public Predator(Coordinates coordinates, int speed, int health_HP, int powerAttack) {
-        super(coordinates, speed, health_HP);
+    public Predator(Coordinates coordinates, int speed, int health_HP, int powerAttack, int hunger) {
+        super(coordinates, speed, health_HP, hunger);
         this.powerAttack = powerAttack;
     }
 
     @Override
     void makeMove(Map map) {
-        LinkedList<Coordinates> path = getPathAlgoritmBfs(this, map);
+        LinkedList<Coordinates> path = getPathAlgoritmBfs(this, map, TargetType.FOOD);
 
         // как то по другому обозвать каунт
         int count = 0;
@@ -30,8 +30,11 @@ public class Predator extends Creature {
 
             if (entity instanceof Herbivore) {
                 Herbivore herbivore = (Herbivore) entity;
-                herbivore.health_HP -= powerAttack;
+
+                herbivore.takeDamage(powerAttack);
+
                 if (herbivore.health_HP <= 0) {
+                    restoreHunger();
                     map.removeEntity(herbivore.coordinates);
                 }
                 break;

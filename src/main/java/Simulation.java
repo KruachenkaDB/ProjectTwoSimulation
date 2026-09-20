@@ -1,46 +1,36 @@
-import java.util.LinkedList;
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Simulation {
     // тут надо пересмотреь все переменные, разобраться какие приватные, какие файнал
     // и интеджер или просто инт, тоже непонятно
-
-    public static final String ANSI_YELLOW_SQUARE_BACKGROUND = "\u001B[33m";
-    public static final String ANSI_RED_SQUARE_BACKGROUND = "\u001B[31m";
-    public static final String ANSI_GREEN_SQUARE_BACKGROUND = "\u001B[32m";
-    public static final String ANSI_WHITE_SQUARE_BACKGROUND = "\u001b[37m";
-
     public static final String GAME_NAME = "Simulation";
     String emptyCell = "=";
 
-    public static final int WIDTH_FRAME = 1000;
-    public static final int HEIGHT_FRAME = 400;
+    public static final int WIDTH_FRAME = 600;
+    public static final int HEIGHT_FRAME = 600;
 
-    public static final int PANEL_TABLE_ROWS = 10;
-    public static final int PANEL_TABLE_COLS = 80;
+    private static final int GRASS_SPAWN_INTERVAL = 2;
+
+    private int simulationDelay = 500;
 
     private int turnCounter = 0;
 
-    public static final JLabel[][] cells = new JLabel[10][80];
+    public static final JLabel[][] cells = new JLabel[GameSettings.MAP_WIDTH][GameSettings.MAP_HEIGHT];
 
-    //не будут ли хищники пресекаться во время хода?
+    private Timer timer;
 
-    //Карту
+    JButton pauseButton;
+    JButton startButton;
+
+
     private Map map;
+    Creature creature;
 
     public Simulation(Map map) {
         this.map = map;
     }
-
-    //Счётчик ходов
-
-
-    //Рендерер поля
-    public void render(Map map) {
-
-    }
-
 
     public String selectUnicodeSpriteForEntity(Entity entity) {
         switch (entity.getClass().getSimpleName()) {
@@ -58,15 +48,6 @@ public class Simulation {
         return "";
     }
 
-    //запустить бесконечный цикл симуляции и рендеринга
-    //съедание происходит когда координаты совпадают (но не заюываем про пищевую цепочку
-    // мышь не может съесть сову
-    void startSimulation() {
-//        while (true) {
-        turnActions();
-//        }
-    }
-
     void initActions() {
         map.initActions();
 
@@ -77,12 +58,18 @@ public class Simulation {
 
 //        Панель для размещения компонентов
         JPanel panel = new JPanel();
+
+        //надо ли ее, или хватит только панель
+        JPanel buttonsPanel = new JPanel();
 //        GridLayout размещает компоненты в виде таблицы с равными ячейками
-        panel.setLayout(new GridLayout(PANEL_TABLE_ROWS, PANEL_TABLE_COLS));
+        panel.setLayout(new GridLayout(GameSettings.MAP_WIDTH, GameSettings.MAP_HEIGHT));
+
+        startButton = new JButton("Старт");
+        pauseButton = new JButton("Пауза");
 
 //        Добавляем компоненты на панель
-        for (int gorizontal = 0; gorizontal < 10; gorizontal++) {
-            for (int vertikal = 0; vertikal < 80; vertikal++) {
+        for (int gorizontal = 0; gorizontal < GameSettings.MAP_WIDTH; gorizontal++) {
+            for (int vertikal = 0; vertikal < GameSettings.MAP_HEIGHT; vertikal++) {
                 cells[gorizontal][vertikal] = new JLabel(emptyCell, SwingConstants.CENTER);
 
                 cells[gorizontal][vertikal].setText(emptyCell);
@@ -100,6 +87,14 @@ public class Simulation {
         }
 //        Добавляем панель в окно
         frame.getContentPane().add(panel);
+
+        buttonsPanel.add(startButton);
+        buttonsPanel.add(pauseButton);
+
+        frame.setLayout(new BorderLayout());
+        frame.add(panel, BorderLayout.CENTER);
+        frame.add(buttonsPanel, BorderLayout.SOUTH);
+
 //        Разместить окно по центру экрана
         frame.setLocationRelativeTo(null);
 //        показать окно
@@ -108,23 +103,37 @@ public class Simulation {
 
     void turnActions() {
         turnCounter++;
-        System.out.println("Ход: " + turnCounter);
-        java.util.List<Herbivore> herbivores = map.getHerbivores();
-        java.util.List<Predator> predators = map.getPredators();
+//        System.out.println("Ход: " + turnCounter);
 
+        java.util.List<Herbivore> herbivores = map.getHerbivores();
         for (Herbivore herbivore : herbivores) {
             herbivore.makeMove(map);
         }
 
+        java.util.List<Predator> predators = map.getPredators();
         for (Predator predator : predators) {
             predator.makeMove(map);
         }
+
+        java.util.List<Creature> creatures = map.getCreatures();
+        for (Creature creature : creatures) {
+            creature.decreaseHunger();
+            if (creature.getHealth_HP() <= 0) {
+                map.removeEntity(creature.getCoordinates());
+            }
+        }
+
+        spawnGrass();
+
         refreshBoard(map, cells);
     }
 
-    //    приостановить бесконечный цикл симуляции и рендеринга
     void pauseSimulation() {
+        timer.stop();
+    }
 
+    void startSimulation() {
+        timer.start();
     }
 
     Color selectColorForEntity(Entity entity){
@@ -143,10 +152,10 @@ public class Simulation {
                 return Color.decode("#FFFAFA");
         }
     }
-    //    тут одинаковый код, может что-то вынести в отдельный код
+
     private void refreshBoard(Map map, JLabel[][] cells) {
-        for (int gorizontal = 0; gorizontal < 10; gorizontal++) {
-            for (int vertikal = 0; vertikal < 80; vertikal++) {
+        for (int gorizontal = 0; gorizontal < GameSettings.MAP_WIDTH; gorizontal++) {
+            for (int vertikal = 0; vertikal < GameSettings.MAP_HEIGHT; vertikal++) {
                 Coordinates coordinates = new Coordinates(gorizontal, vertikal);
 
                 if (map.isSquareEmpty(coordinates)) {
@@ -165,5 +174,20 @@ public class Simulation {
                 }
             }
         }
+    }
+
+    void initTimer() {
+        timer = new Timer(simulationDelay, e -> turnActions());
+        startButton.addActionListener(e -> startSimulation());
+        pauseButton.addActionListener(e -> pauseSimulation());
+    }
+
+    void spawnGrass() {
+        if (turnCounter % GRASS_SPAWN_INTERVAL == 0) {
+            map.randomCoordinates = map.getRandomCoordinates();
+            map.setEntitys(map.randomCoordinates, new Grass(map.randomCoordinates));
+        }
+        // проверяем количество ходов
+        // если пора — создаём Grass
     }
 }

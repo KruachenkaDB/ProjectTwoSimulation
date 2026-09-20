@@ -19,8 +19,8 @@ public class Coordinates {
         int v = vertical + shift.verticalShift;
         int g = gorizontal + shift.gorizontalShift;
 
-        if ((v < 0) || (v >= 10)) return false;
-        if ((g < 0) || (g >= 80)) return false;
+        if ((v < 0) || (v >= GameSettings.MAP_HEIGHT)) return false;
+        if ((g < 0) || (g >= GameSettings.MAP_WIDTH)) return false;
 
         return true;
     }
