@@ -1,3 +1,4 @@
+import action.*;
 import config.GameSettings;
 import entity.*;
 import map.Coordinates;
@@ -5,6 +6,7 @@ import map.Map;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Simulation {
@@ -22,29 +24,43 @@ public class Simulation {
 
     private final Map map;
 
+    private final List<InitAction> initActions = new ArrayList<>();
+    private final List<TurnAction> turnActions = new ArrayList<>();
+
     public Simulation(Map map) {
         this.map = map;
+
+        initActions.add(new InitEntitiesAction());
+
+        turnActions.add(new MoveCreaturesAction());
+        turnActions.add(new DecreaseHungerAction());
+        turnActions.add(new SpawnGrassTurnAction());
     }
 
     private String selectUnicodeSpriteForEntity(Entity entity) {
-        switch (entity.getClass().getSimpleName()) {
-            case "Predator":
-                return "\uD83E\uDD89";
-            case "Herbivore":
-                return "\uD83D\uDC01";
-            case "Grass":
-                return "\uD83C\uDF3D";
-            case "Rock":
-                return "\uD83D\uDDFB";
-            case "Tree":
-                return "\uD83C\uDF32";
+        if (entity instanceof Predator) {
+            return GameSettings.PREDATOR_SPRITE;
         }
+        if (entity instanceof Herbivore) {
+            return GameSettings.HERBIVORE_SPRITE;
+        }
+        if (entity instanceof Grass) {
+            return GameSettings.GRASS_SPRITE;
+        }
+        if (entity instanceof Rock) {
+            return GameSettings.ROCK_SPRITE;
+        }
+        if (entity instanceof Tree) {
+            return GameSettings.TREE_SPRITE;
+        }
+
         return "";
     }
 
-    // переименовать
+//    Swing-интерфейс потому что консольный вариант с постоянно обновляющимся полем мне показался неудобным
+//    окно постоянно мельтешило и за состоянием карты было сложнее следить
     void initUI() {
-        map.initEntitys();
+        executeInitActions();
 
 //        Swing-интерфейс
 //        Создаем и настраиваем каркас (окно) приложения
@@ -96,28 +112,10 @@ public class Simulation {
         frame.setVisible(true);
     }
 
-    private void turnActions() {
+    private void nextTurn() {
         turnCounter++;
 
-        List<Herbivore> herbivores = map.getHerbivores();
-        for (Herbivore herbivore : herbivores) {
-            herbivore.makeMove(map);
-        }
-
-        List<Predator> predators = map.getPredators();
-        for (Predator predator : predators) {
-            predator.makeMove(map);
-        }
-
-        List<Creature> creatures = map.getCreatures();
-        for (Creature creature : creatures) {
-            creature.decreaseHunger();
-            if (creature.getHealth() <= 0) {
-                map.removeEntity(creature.getCoordinates());
-            }
-        }
-
-        spawnGrass();
+        executeTurnActions();
 
         refreshBoard();
     }
@@ -130,21 +128,25 @@ public class Simulation {
         timer.start();
     }
 
-    private Color selectColorForEntity(Entity entity){
-        switch (entity.getClass().getSimpleName()) {
-            case "Predator":
-                return Color.decode("#8B4513");
-            case "Herbivore":
-                return Color.decode("#4169E1");
-            case "Grass":
-                return  Color.decode("#FFD700");
-            case "Rock":
-                return Color.decode("#000000");
-            case "Tree":
-                return  Color.decode("#008000");
-            default:
-                return Color.decode("#FFFAFA");
+    //    окрашивание сущностей в Swing
+    private Color selectColorForEntity(Entity entity) {
+        if (entity instanceof Predator) {
+            return GameSettings.PREDATOR_COLOR;
         }
+        if (entity instanceof Herbivore) {
+            return GameSettings.HERBIVORE_COLOR;
+        }
+        if (entity instanceof Grass) {
+            return GameSettings.GRASS_COLOR;
+        }
+        if (entity instanceof Rock) {
+            return GameSettings.ROCK_COLOR;
+        }
+        if (entity instanceof Tree) {
+            return GameSettings.TREE_COLOR;
+        }
+
+        return GameSettings.DEFAULT_COLOR;
     }
 
     private void refreshBoard() {
@@ -170,17 +172,22 @@ public class Simulation {
     }
 
     void initTimer() {
-        timer = new Timer(GameSettings.SIMULATION_DELAY, e -> turnActions());
+        timer = new Timer(GameSettings.SIMULATION_DELAY, e -> nextTurn());
 
-        // обработчики действий
+//        обработчики действий
         startButton.addActionListener(e -> startSimulation());
         pauseButton.addActionListener(e -> pauseSimulation());
     }
 
-    void spawnGrass() {
-        if (turnCounter % GameSettings.GRASS_SPAWN_INTERVAL == 0) {
-            Coordinates coordinates = map.getRandomCoordinates();
-            map.setEntitys(coordinates, new Grass(coordinates));
+    private void executeInitActions() {
+        for (InitAction action : initActions) {
+            action.execute(map);
+        }
+    }
+
+    private void executeTurnActions() {
+        for (TurnAction action : turnActions) {
+            action.execute(map, turnCounter);
         }
     }
 }

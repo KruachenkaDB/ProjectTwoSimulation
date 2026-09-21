@@ -41,38 +41,6 @@ public class Map {
         return randomCoordinates;
     }
 
-    public void initEntitys() {
-        if (!hasEnoughSpace()) {
-//            IllegalStateException - недопустимое состояние
-            throw new IllegalStateException("На поле недостаточно места для всех объектов");
-        }
-
-        for (int i = 0; i < GameSettings.INITIAL_PREDATOR_COUNT; i++) {
-            Coordinates randomCoordinates = getRandomCoordinates();
-            setEntitys(randomCoordinates, new Predator(randomCoordinates, GameSettings.PREDATOR_SPEED, GameSettings.PREDATOR_HEALTH, GameSettings.PREDATOR_ATTACK, GameSettings.MAX_HUNGER));
-        }
-
-        for (int i = 0; i < GameSettings.INITIAL_HERBIVORE_COUNT; i++) {
-            Coordinates randomCoordinates = getRandomCoordinates();
-            setEntitys(randomCoordinates, new Herbivore(randomCoordinates, GameSettings.HERBIVORE_SPEED, GameSettings.HERBIVORE_HEALTH, GameSettings.MAX_HUNGER));
-        }
-
-        for (int i = 0; i < GameSettings.INITIAL_GRASS_COUNT; i++) {
-            Coordinates randomCoordinates = getRandomCoordinates();
-            setEntitys(randomCoordinates, new Grass(randomCoordinates));
-        }
-
-        for (int i = 0; i < GameSettings.INITIAL_ROCK_COUNT; i++) {
-            Coordinates randomCoordinates = getRandomCoordinates();
-            setEntitys(randomCoordinates, new Rock(randomCoordinates));
-        }
-
-        for (int i = 0; i < GameSettings.INITIAL_TREE_COUNT; i++) {
-            Coordinates randomCoordinates = getRandomCoordinates();
-            setEntitys(randomCoordinates, new Tree(randomCoordinates));
-        }
-    }
-
     public boolean isSquareEmpty(Coordinates coordinates) {
         return !entitys.containsKey(coordinates);
     }
@@ -117,7 +85,7 @@ public class Map {
         return creatures;
     }
 
-    private boolean hasEnoughSpace() {
+    public boolean hasEnoughSpace() {
         int totalEntities =
                 GameSettings.INITIAL_PREDATOR_COUNT
                         + GameSettings.INITIAL_HERBIVORE_COUNT

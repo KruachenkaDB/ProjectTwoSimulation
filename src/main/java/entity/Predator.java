@@ -1,10 +1,7 @@
 package entity;
 
 import map.Coordinates;
-
-import java.util.LinkedList;
 import map.Map;
-import map.TargetType;
 
 public class Predator extends Creature {
     private final int powerAttack;
@@ -15,29 +12,16 @@ public class Predator extends Creature {
     }
 
     @Override
-    public void makeMove(Map map) {
-        LinkedList<Coordinates> path = findPathBfs(this, map, TargetType.FOOD);
+    protected void interactWithTarget(Map map, Entity target) {
+        if (target instanceof Herbivore) {
+            Herbivore herbivore = (Herbivore) target;
 
-        int steps = 0;
-        while (steps < getSpeed()) {
-            if (path.isEmpty()) break;
-            Entity entity = map.getEntity(path.getFirst());
+            herbivore.takeDamage(powerAttack);
 
-            if (entity instanceof Herbivore) {
-                Herbivore herbivore = (Herbivore) entity;
-
-                herbivore.takeDamage(powerAttack);
-
-                if (herbivore.getHealth() <= 0) {
-                    restoreHunger();
-                    map.removeEntity(herbivore.getCoordinates());
-                }
-                break;
-            } else {
-                map.moveEntity(getCoordinates(), path.getFirst());
-                path.removeFirst();
+            if (herbivore.getHealth() <= 0) {
+                restoreHunger();
+                map.removeEntity(herbivore.getCoordinates());
             }
-            steps++;
         }
     }
 
@@ -45,7 +29,6 @@ public class Predator extends Creature {
     public boolean isSquareAvailableForMove(Coordinates coordinates, Map map) {
         Entity entity = map.getEntity(coordinates);
 
-        return super.isSquareAvailableForMove(coordinates, map)
-                || entity instanceof Herbivore;
+        return super.isSquareAvailableForMove(coordinates, map) || entity instanceof Herbivore;
     }
 }
