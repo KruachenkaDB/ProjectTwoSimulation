@@ -1,26 +1,19 @@
 package entity;
 
 import map.Coordinates;
-import map.Map;
+import map.GameMap;
 
 public class Herbivore extends Creature {
 
-    public Herbivore(Coordinates coordinates, int speed, int health, int hunger) {
-        super(coordinates, speed, health, hunger);
+    public Herbivore(Coordinates coordinates, int speed, int health, int hunger, int hungerDecrease, int hungerDamage) {
+        super(coordinates, speed, health, hunger, hungerDecrease, hungerDamage, Grass.class);
     }
 
     @Override
-    protected void interactWithTarget(Map map, Entity target) {
+    protected void interactWithTarget(GameMap gameMap, Entity target, Coordinates targetCoordinates) {
         if (target instanceof Grass) {
             restoreHunger();
-            map.removeEntity(target.getCoordinates());
+            gameMap.removeEntity(targetCoordinates);
         }
-    }
-
-    @Override
-    public boolean isSquareAvailableForMove(Coordinates coordinates, Map map) {
-        Entity entity = map.getEntity(coordinates);
-
-        return super.isSquareAvailableForMove(coordinates, map) || entity instanceof Grass;
     }
 }

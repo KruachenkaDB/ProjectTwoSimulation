@@ -1,10 +1,8 @@
 package entity;
 
-import config.GameSettings;
 import map.Coordinates;
-import map.Map;
-import map.TargetType;
-import path.PathFinder;
+import map.GameMap;
+import path.BfsPathFinder;
 
 import java.util.LinkedList;
 
@@ -13,11 +11,23 @@ public abstract class Creature extends Entity {
     private int health;
     private int hunger;
 
-    Creature(Coordinates coordinates, int speed, int health, int hunger) {
-        super(coordinates);
+    private final int maxHunger;
+    private final int hungerDecrease;
+    private final int hungerDamage;
+
+    private final Class<? extends Entity> target;
+
+    private Coordinates coordinates;
+
+    Creature(Coordinates coordinates, int speed, int health, int maxHunger, int hungerDecrease, int hungerDamage, Class<? extends Entity> target) {
         this.speed = speed;
         this.health = health;
-        this.hunger = hunger;
+        this.maxHunger = maxHunger;
+        this.hunger = maxHunger;
+        this.hungerDecrease = hungerDecrease;
+        this.hungerDamage = hungerDamage;
+        this.target = target;
+        this.coordinates = coordinates;
     }
 
     public int getHealth() {
@@ -28,41 +38,47 @@ public abstract class Creature extends Entity {
         return speed;
     }
 
-    public void makeMove(Map map) {
+    public Coordinates getCoordinates() {
+        return coordinates;
+    }
+
+    public void setCoordinates(Coordinates coordinates) {
+        this.coordinates = coordinates;
+    }
+
+    public void makeMove(GameMap gameMap) {
         LinkedList<Coordinates> path =
-                PathFinder.findPathBfs(this, map, TargetType.FOOD);
+                BfsPathFinder.find(gameMap, getCoordinates(), target);
 
         int steps = 0;
 
-        while (steps < getSpeed()) {
-            if (path.isEmpty()) {
-                break;
-            }
-
+        while ((steps < getSpeed()) && !path.isEmpty()) {
             Coordinates nextCoordinates = path.removeFirst();
-            Entity target = map.getEntity(nextCoordinates);
 
-            if (target != null) {
-                interactWithTarget(map, target);
+            steps++;
+
+            Entity targetEntity  = gameMap.getEntity(nextCoordinates);
+
+            if (targetEntity  != null) {
+                interactWithTarget(gameMap, targetEntity, nextCoordinates);
                 break;
             }
 
-            map.moveEntity(getCoordinates(), nextCoordinates);
-            steps++;
+            move(gameMap, nextCoordinates);
         }
     }
 
-    protected abstract void interactWithTarget(Map map, Entity target);
+    protected abstract void interactWithTarget(GameMap gameMap, Entity target, Coordinates targetCoordinates);
 
     public void decreaseHunger() {
-        hunger -= GameSettings.HUNGER_DECREASE;
+        hunger -= hungerDecrease;
 
         if (hunger < 0) {
             hunger = 0;
         }
 
         if (hunger == 0) {
-            takeDamage(GameSettings.HUNGER_DAMAGE);
+            takeDamage(hungerDamage);
         }
     }
 
@@ -71,6 +87,11 @@ public abstract class Creature extends Entity {
     }
 
     public void restoreHunger() {
-        hunger = GameSettings.MAX_HUNGER;
+        hunger = maxHunger;
+    }
+
+    public void move(GameMap gameMap, Coordinates to) {
+        gameMap.removeEntity(getCoordinates());
+        gameMap.putEntity(to, this);
     }
 }

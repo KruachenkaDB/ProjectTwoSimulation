@@ -1,45 +1,41 @@
 package map;
 
-import config.GameSettings;
-
 import java.util.Objects;
 
 public class Coordinates {
-    public final Integer vertical;
-    public final Integer horizontal;
+    private final int y;
+    private final int x;
 
-    public Coordinates(Integer vertical, Integer horizontal) {
-        this.vertical = vertical;
-        this.horizontal = horizontal;
+    public Coordinates(int y, int x) {
+        this.y = y;
+        this.x = x;
     }
 
-    public Coordinates shift(CoordinatesShift shift) {
+    public int getY() {
+        return y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public Coordinates shift(Coordinates shift) {
         return new Coordinates(
-                this.vertical + shift.verticalShift,
-                this.horizontal + shift.horizontalShift
+                this.y + shift.getY(),
+                this.x + shift.getX()
         );
-    }
-
-    public boolean canShift(CoordinatesShift shift) {
-        int v = vertical + shift.verticalShift;
-        int h = horizontal + shift.horizontalShift;
-
-        if ((v < 0) || (v >= GameSettings.MAP_HEIGHT)) return false;
-        if ((h < 0) || (h >= GameSettings.MAP_WIDTH)) return false;
-
-        return true;
     }
 
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
-        Coordinates that = (Coordinates) object;
+        Coordinates other = (Coordinates) object;
 
-        return Objects.equals(vertical, that.vertical) && Objects.equals(horizontal, that.horizontal);
+        return Objects.equals(y, other.y) && Objects.equals(x, other.x);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(vertical, horizontal);
+        return Objects.hash(y, x);
     }
 }

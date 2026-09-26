@@ -1,34 +1,26 @@
 package entity;
 
 import map.Coordinates;
-import map.Map;
+import map.GameMap;
 
 public class Predator extends Creature {
     private final int powerAttack;
 
-    public Predator(Coordinates coordinates, int speed, int health, int powerAttack, int hunger) {
-        super(coordinates, speed, health, hunger);
+    public Predator(Coordinates coordinates, int speed, int health, int powerAttack, int hunger, int hungerDecrease, int hungerDamage) {
+        super(coordinates, speed, health, hunger, hungerDecrease, hungerDamage, Herbivore.class);
         this.powerAttack = powerAttack;
     }
 
     @Override
-    protected void interactWithTarget(Map map, Entity target) {
-        if (target instanceof Herbivore) {
-            Herbivore herbivore = (Herbivore) target;
+    protected void interactWithTarget(GameMap gameMap, Entity target, Coordinates targetCoordinates) {
+        if (target instanceof Herbivore herbivore) {
 
             herbivore.takeDamage(powerAttack);
 
             if (herbivore.getHealth() <= 0) {
                 restoreHunger();
-                map.removeEntity(herbivore.getCoordinates());
+                gameMap.removeEntity(targetCoordinates);
             }
         }
-    }
-
-    @Override
-    public boolean isSquareAvailableForMove(Coordinates coordinates, Map map) {
-        Entity entity = map.getEntity(coordinates);
-
-        return super.isSquareAvailableForMove(coordinates, map) || entity instanceof Herbivore;
     }
 }

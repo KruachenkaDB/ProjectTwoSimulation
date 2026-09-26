@@ -2,7 +2,10 @@ package config;
 
 import java.awt.*;
 
-public class GameSettings {
+public final class GameSettings {
+    private GameSettings() {
+    }
+
     public static final int MAP_WIDTH = 40;
     public static final int MAP_HEIGHT = 40;
 

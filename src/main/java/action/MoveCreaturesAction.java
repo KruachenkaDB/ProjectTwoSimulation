@@ -1,24 +1,17 @@
 package action;
 
-import entity.Herbivore;
-import entity.Predator;
-import map.Map;
+import entity.Creature;
+import map.GameMap;
 
 import java.util.List;
 
-public class MoveCreaturesAction implements TurnAction {
+public class MoveCreaturesAction implements Action {
     @Override
-    public void execute(Map map, int turnCounter) {
-        List<Herbivore> herbivores = map.getHerbivores();
+    public void execute(GameMap gameMap) {
+        List<Creature> creatures = gameMap.getEntitiesBy(Creature.class);
 
-        for (Herbivore herbivore : herbivores) {
-            herbivore.makeMove(map);
-        }
-
-        List<Predator> predators = map.getPredators();
-
-        for (Predator predator : predators) {
-            predator.makeMove(map);
+        for (Creature creature : creatures) {
+            creature.makeMove(gameMap);
         }
     }
 }

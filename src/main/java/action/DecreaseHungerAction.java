@@ -1,18 +1,18 @@
 package action;
 
 import entity.Creature;
-import map.Map;
+import map.GameMap;
 
 import java.util.List;
 
-public class DecreaseHungerAction implements TurnAction {
+public class DecreaseHungerAction implements Action {
     @Override
-    public void execute(Map map, int turnCounter) {
-        List<Creature> creatures = map.getCreatures();
+    public void execute(GameMap gameMap) {
+        List<Creature> creatures = gameMap.getEntitiesBy(Creature.class);
         for (Creature creature : creatures) {
             creature.decreaseHunger();
             if (creature.getHealth() <= 0) {
-                map.removeEntity(creature.getCoordinates());
+                gameMap.removeEntity(creature.getCoordinates());
             }
         }
     }

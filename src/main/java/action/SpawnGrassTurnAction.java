@@ -1,14 +1,14 @@
 package action;
 
-import map.Map;
-import spawn.GrassSpawnAction;
+import map.GameMap;
+import spawn.GrassSpawner;
 
-public class SpawnGrassTurnAction implements TurnAction {
+public class SpawnGrassTurnAction implements Action {
 
-    private final GrassSpawnAction grassSpawnAction = new GrassSpawnAction();
+    private final GrassSpawner grassSpawner = new GrassSpawner();
 
     @Override
-    public void execute(Map map, int turnCounter) {
-        grassSpawnAction.execute(map);
+    public void execute(GameMap gameMap) {
+        grassSpawner.spawn(gameMap);
     }
 }

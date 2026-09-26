@@ -1,12 +1,14 @@
-import map.Map;
+import config.GameSettings;
+import map.GameMap;
+
+import javax.swing.*;
 
 public class Main {
     public static void main(String[] args){
-        Map map = new Map();
+        GameMap gameMap = new GameMap(GameSettings.MAP_WIDTH, GameSettings.MAP_HEIGHT);
 
-        Simulation simulation = new Simulation(map);
+        SimulationController controller = new SimulationController(gameMap);
 
-        simulation.initUI();
-        simulation.initTimer();
+        SwingUtilities.invokeLater(controller::start);
     }
 }
